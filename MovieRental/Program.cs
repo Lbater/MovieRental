@@ -10,9 +10,12 @@ namespace MovieRental
     {
         static void Main(string[] args)
         {
-            string FileName = "MovieList - Copy.csv";
+            string FileName = "MovieList.csv";
             Movie movie = new Movie("Test", "Action", true);
             MovieRentalSystem mrs = new MovieRentalSystem();
+            mrs.AddMovie("Test", "Memes");
+
+            mrs.SaveToCSV(FileName);
 
             foreach (var item in mrs.LoadFromCSV(FileName))
                 Console.WriteLine(item);
