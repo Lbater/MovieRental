@@ -11,10 +11,10 @@ using System.Threading.Tasks;
  * TODO:
  * Add a new movie. <- Done
  * Search for movies by title or genre. <- Done
- * Rent a movie (mark it as unavailable).
- * Return a movie (mark it as available).
- * Save the movie list to a CSV file.
- * Load the movie list from a CSV file.
+ * Rent a movie (mark it as unavailable). <- Done
+ * Return a movie (mark it as available). <- Done
+ * Save the movie list to a CSV file. <- Done
+ * Load the movie list from a CSV file. <- Done
  * 
  * I'd Also like to take a look at how to maybe put this to a website
  */
@@ -39,9 +39,10 @@ namespace MovieRental
         private List<Movie> moviesTesting = new List<Movie>()
         {
             new Movie("Star Wars", "Action", true),
-            new Movie("Terminator", "Action", true),
-            new Movie("Journey To The Center Of The Earth", "Adventure", true),
+            new Movie("Top Gun: Maverick", "Action", false),
             new Movie("Liar Liar", "Comedy", true),
+            new Movie("Terminator", "Action", true),
+            new Movie("Journey To The Center Of The Earth", "Adventure", false),
             new Movie("The Exorcist", "Horror", false)
         };
 
@@ -52,9 +53,13 @@ namespace MovieRental
         /// <param name="Genre">The genre of the movie being added</param>
         public void AddMovie(string Title, string Genre)
         {
-            movies.Add (new Movie (Title, Genre, true));
-            moviesTesting.Add (new Movie (Title, Genre, true));
+            var newMovie = new Movie(Title, Genre, true);
+            movies.Add(newMovie);
+            moviesTesting.Add(newMovie);
+
+            Console.WriteLine($"Added movie: {newMovie.Title}, {newMovie.Genre}");
         }
+
 
         /// <summary>
         /// This uses LINQ to search through the list of movies then add all of them to a list that will be returned
@@ -117,22 +122,29 @@ namespace MovieRental
             return true;
         }
 
-        // TODO make good
-        //  - I figure just kinda load the file to the list then search for the title if it doesn't exist then append it to the end of the csv file
+        /// <summary>
+        /// This saves all of the new data from the local list to a CSV file
+        /// </summary>
+        /// <param name="filename">The CSV file you are adding to</param>
         public void SaveToCSV(string filename)
         {
             List<Movie> tempList = LoadFromCSV(filename);
 
-            for (int i = 0; i < tempList.Count; i++)
+
+            using (StreamWriter sw = new StreamWriter(filename, true)) // Open the file once
             {
-                for (int j = 0; j < moviesTesting.Count; j++)
+                foreach (var movie in tempList)
                 {
-                    if (!(moviesTesting[j].Title == tempList[i].Title))
+                    if (!tempList.Any(m => m.Title.Trim().Equals(movie.Title.Trim(), StringComparison.OrdinalIgnoreCase))
+)
                     {
-                        // TODO add the ability to write to the CSV
+                        Console.WriteLine($"Saving movie to CSV: {movie.Title}, {movie.Genre}");
+                        sw.WriteLine($"{movie.Title}, {movie.Genre}, {movie.IsAvailable}");
                     }
                 }
             }
+            Console.WriteLine($"Movies count in SaveToCSV: {movies.Count}");
+
         }
 
         /// <summary>
@@ -142,38 +154,27 @@ namespace MovieRental
         /// <returns>The filled local list</returns>
         public List<Movie> LoadFromCSV(string filename)
         {
-            try
+            List<Movie> tempMovies = new List<Movie>(); // Use a separate list
+
+            if (!File.Exists(filename)) return tempMovies;
+
+            using (StreamReader data = new StreamReader(filename))
             {
-                FileStream file = new FileStream(filename, FileMode.Open, FileAccess.Read);
-
-                if (file == null)
-                {
-                    Console.WriteLine("File Not Found");
-                    return null;
-                }
-
-                StreamReader data = new StreamReader(file);
-
                 string line;
                 while ((line = data.ReadLine()) != null)
                 {
                     string[] movs = line.Split(',');
-                    bool temp = true;
-                    if (movs[2].Trim() == "false" || movs[2].Trim() == "False")
-                        temp = false;
+                    bool temp = movs[2].Trim().ToLower() == "false" ? false : true;
                     Movie mov = new Movie(movs[0].Trim(), movs[1].Trim(), temp);
-                    movies.Add(mov);
-                }
 
-                data.Close();
-                return movies;
+                    if (!tempMovies.Any(m => m.Title == mov.Title)) // Prevent overwriting
+                    {
+                        tempMovies.Add(mov);
+                    }
+                }
             }
-            catch (Exception ex) 
-            {
-                Console.WriteLine(ex.Message);
-                return null;
-            }
-            
+            return tempMovies;
         }
+
     }
 }
