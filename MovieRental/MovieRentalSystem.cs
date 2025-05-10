@@ -57,7 +57,7 @@ namespace MovieRental
             movies.Add(newMovie);
             moviesTesting.Add(newMovie);
 
-            Console.WriteLine($"Added movie: {newMovie.Title}, {newMovie.Genre}");
+            //Console.WriteLine($"Added movie: {newMovie.Title}, {newMovie.Genre}");
         }
 
 
@@ -130,21 +130,16 @@ namespace MovieRental
         {
             List<Movie> tempList = LoadFromCSV(filename);
 
-
-            using (StreamWriter sw = new StreamWriter(filename, true)) // Open the file once
+            using (StreamWriter sw = new StreamWriter(filename, true))
             {
-                foreach (var movie in tempList)
+                foreach (var movie in movies) // For Testing you can change the "movies" part of the foreach loop into moviesTesting or any other testing variables
                 {
-                    if (!tempList.Any(m => m.Title.Trim().Equals(movie.Title.Trim(), StringComparison.OrdinalIgnoreCase))
-)
+                    if (!tempList.Any(m => m.Title.Trim().Equals(movie.Title.Trim(), StringComparison.OrdinalIgnoreCase)))
                     {
-                        Console.WriteLine($"Saving movie to CSV: {movie.Title}, {movie.Genre}");
                         sw.WriteLine($"{movie.Title}, {movie.Genre}, {movie.IsAvailable}");
                     }
                 }
             }
-            Console.WriteLine($"Movies count in SaveToCSV: {movies.Count}");
-
         }
 
         /// <summary>
@@ -154,7 +149,7 @@ namespace MovieRental
         /// <returns>The filled local list</returns>
         public List<Movie> LoadFromCSV(string filename)
         {
-            List<Movie> tempMovies = new List<Movie>(); // Use a separate list
+            List<Movie> tempMovies = new List<Movie>();
 
             if (!File.Exists(filename)) return tempMovies;
 
