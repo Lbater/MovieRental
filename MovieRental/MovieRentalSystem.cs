@@ -23,15 +23,6 @@ namespace MovieRental
 {
     public class MovieRentalSystem
     {
-        /// <summary>
-        /// This Enum is used to help with the searching function
-        /// </summary>
-        public enum SearchType
-        {
-            Title,
-            Genre
-        }
-
         //This list is the proper list that will have implementation with the CSV files
         private List<Movie> movies = new List<Movie>();
 
@@ -67,17 +58,19 @@ namespace MovieRental
         /// <param name="Choice">Whether to search by Title or Genre</param>
         /// <param name="ToG">Stands for TitleOrGenre basically the title or genre you're searching for</param>
         /// <returns>Returns a list with all matching search results</returns>
-        public List<Movie> Search(SearchType Choice, string ToG)
+        public List<Movie> Search(string Choice, string ToG)
         {
+            Console.WriteLine(Choice + " " + ToG);
             List<Movie> tempList = new List<Movie>();
-            switch(Choice)
+            string lowChoice = Choice.ToLower();
+            switch(lowChoice)
             {
-                case SearchType.Title:
-                    var searchedTitle = from movie in movies where movie.Title.Contains(ToG) select movie;
-                    foreach (var movie in searchedTitle)
+                case "title":
+                    var searchedTitle = from movie in movies where movie.Title.ToLower().Contains(ToG.ToLower()) select movie;
+                    foreach (var movie in searchedTitle)                 
                         tempList.Add(movie);
                     break;
-                case SearchType.Genre:
+                case "genre":
                     var searchedGenre = from movie in movies where movie.Genre == ToG select movie;
                     foreach (var movie in searchedGenre)
                         tempList.Add(movie);
