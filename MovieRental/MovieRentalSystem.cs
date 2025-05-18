@@ -23,15 +23,6 @@ namespace MovieRental
 {
     public class MovieRentalSystem
     {
-        /// <summary>
-        /// This Enum is used to help with the searching function
-        /// </summary>
-        public enum SearchType
-        {
-            Title,
-            Genre
-        }
-
         //This list is the proper list that will have implementation with the CSV files
         private List<Movie> movies = new List<Movie>();
 
@@ -57,7 +48,7 @@ namespace MovieRental
             movies.Add(newMovie);
             moviesTesting.Add(newMovie);
 
-            Console.WriteLine($"Added movie: {newMovie.Title}, {newMovie.Genre}");
+            //Console.WriteLine($"Added movie: {newMovie.Title}, {newMovie.Genre}");
         }
 
 
@@ -67,17 +58,19 @@ namespace MovieRental
         /// <param name="Choice">Whether to search by Title or Genre</param>
         /// <param name="ToG">Stands for TitleOrGenre basically the title or genre you're searching for</param>
         /// <returns>Returns a list with all matching search results</returns>
-        public List<Movie> Search(SearchType Choice, string ToG)
+        public List<Movie> Search(string Choice, string ToG)
         {
+            Console.WriteLine(Choice + " " + ToG);
             List<Movie> tempList = new List<Movie>();
-            switch(Choice)
+            string lowChoice = Choice.ToLower();
+            switch(lowChoice)
             {
-                case SearchType.Title:
-                    var searchedTitle = from movie in movies where movie.Title.Contains(ToG) select movie;
-                    foreach (var movie in searchedTitle)
+                case "title":
+                    var searchedTitle = from movie in movies where movie.Title.ToLower().Contains(ToG.ToLower()) select movie;
+                    foreach (var movie in searchedTitle)                 
                         tempList.Add(movie);
                     break;
-                case SearchType.Genre:
+                case "genre":
                     var searchedGenre = from movie in movies where movie.Genre == ToG select movie;
                     foreach (var movie in searchedGenre)
                         tempList.Add(movie);
@@ -130,21 +123,16 @@ namespace MovieRental
         {
             List<Movie> tempList = LoadFromCSV(filename);
 
-
-            using (StreamWriter sw = new StreamWriter(filename, true)) // Open the file once
+            using (StreamWriter sw = new StreamWriter(filename, true))
             {
-                foreach (var movie in tempList)
+                foreach (var movie in movies) // For Testing you can change the "movies" part of the foreach loop into moviesTesting or any other testing variables
                 {
-                    if (!tempList.Any(m => m.Title.Trim().Equals(movie.Title.Trim(), StringComparison.OrdinalIgnoreCase))
-)
+                    if (!tempList.Any(m => m.Title.Trim().Equals(movie.Title.Trim(), StringComparison.OrdinalIgnoreCase)))
                     {
-                        Console.WriteLine($"Saving movie to CSV: {movie.Title}, {movie.Genre}");
                         sw.WriteLine($"{movie.Title}, {movie.Genre}, {movie.IsAvailable}");
                     }
                 }
             }
-            Console.WriteLine($"Movies count in SaveToCSV: {movies.Count}");
-
         }
 
         /// <summary>
@@ -154,7 +142,7 @@ namespace MovieRental
         /// <returns>The filled local list</returns>
         public List<Movie> LoadFromCSV(string filename)
         {
-            List<Movie> tempMovies = new List<Movie>(); // Use a separate list
+            List<Movie> tempMovies = new List<Movie>();
 
             if (!File.Exists(filename)) return tempMovies;
 
